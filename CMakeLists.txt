@@ -2,15 +2,31 @@ cmake_minimum_required(VERSION 3.10)
 
 project(txtpp)
 
+# Set the C++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set binary and library output paths
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
+# Output compile_commands.json for tools like clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Source files
+set(SOURCE_FILES 
+    src/main.cpp
+    src/terminal/Terminal.cpp
+    src/exceptions/terminal/TerminalException.cpp
+)
 
-add_executable(txtpp src/main.cpp)
+# Include directories
+include_directories(
+    src/terminal
+    src/exceptions/terminal
+)
 
-include_directories("${PROJECT_SOURCE_DIR}")
+# Create an executable
+add_executable(txtpp ${SOURCE_FILES})
+
