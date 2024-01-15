@@ -19,12 +19,14 @@ set(SOURCE_FILES
     src/main.cpp
     src/terminal/Terminal.cpp
     src/exceptions/terminal/TerminalException.cpp
+    src/exceptions/app/AppException.cpp
 )
 
 # Include directories
 include_directories(
     src/terminal
     src/exceptions/terminal
+    src/exceptions/app
 )
 
 # Create an executable
