@@ -16,7 +16,7 @@ void Terminal::disableRawMode() {
 
 void Terminal::enableRawMode() {
   if (tcgetattr(STDIN_FILENO, &orig_termios) == -1)
-    throw new TerminalException("Error in tcgetattr");
+    throw TerminalException("Error getting terminal attributes.");
 
   atexit(disableRawMode);
   struct termios raw = orig_termios;
@@ -43,5 +43,5 @@ void Terminal::enableRawMode() {
   raw.c_cc[VTIME] = 1;
 
   if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
-    throw new TerminalException("Error in tcsetattr");
+    throw TerminalException("Error setting terminal attributes.");
 }
