@@ -18,6 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SOURCE_FILES 
     src/main.cpp
     src/terminal/Terminal.cpp
+    src/editor/Editor.cpp
     src/exceptions/terminal/TerminalException.cpp
     src/exceptions/app/AppException.cpp
 )
@@ -25,6 +26,7 @@ set(SOURCE_FILES
 # Include directories
 include_directories(
     src/terminal
+    src/editor
     src/exceptions/terminal
     src/exceptions/app
 )
