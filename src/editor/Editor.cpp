@@ -24,3 +24,28 @@ void Editor::processKeypress() {
       break;
   }
 }
+
+void Editor::refreshScreen() {
+  // J - erase in display
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+  // H - set cursor to home position (top left)
+  write(STDOUT_FILENO, "\x1b[H", 3);
+
+  drawRows();
+
+  // H - set cursor to home position (top left)
+  write(STDOUT_FILENO, "\x1b[H", 3);
+}
+
+void Editor::drawRows() {
+  int y;
+  int rows = m_terminal.getScreenRows();
+  for (y = 0; y < rows; y++) {
+    write(STDOUT_FILENO, "~", 1);
+
+    if (y < rows - 1) {
+      write(STDOUT_FILENO, "\r\n", 2);
+    }
+  }
+}
+
