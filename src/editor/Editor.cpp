@@ -29,8 +29,9 @@ void Editor::processKeypress() {
 void Editor::refreshScreen() {
 
   Buffer buffer;
-  // J - erase in display
-  buffer.append("\x1b[2J", 4);
+
+  // l - set mode (turning cursor off)
+  buffer.append("\x1b[?25l", 4);
   // H - set cursor to home position (top left)
   buffer.append("\x1b[H", 3);
 
@@ -38,6 +39,8 @@ void Editor::refreshScreen() {
 
   // H - set cursor to home position (top left)
   buffer.append("\x1b[H", 3);
+  // h - reset mode (turning cursor on)
+  buffer.append("\x1b[?25h", 4);
 
   write(STDOUT_FILENO, buffer.getBuffer(), buffer.getLength());
 }
@@ -48,6 +51,8 @@ void Editor::drawRows(Buffer *buffer) {
   for (y = 0; y < rows; y++) {
     buffer->append("~", 1);
 
+    // K - erase in line
+    buffer->append("\x1b[K", 3);
     if (y < rows - 1) {
       buffer->append("\r\n", 2);
     }
