@@ -1,7 +1,20 @@
 #include "Editor.h"
 #include "AppException.h"
+#include "Sequences.h"
 #include "Buffer.h"
 #include <unistd.h>
+
+using Sequences::CURSOR_OFF;
+using Sequences::CURSOR_OFF_LENGTH;
+
+using Sequences::CURSOR_ON;
+using Sequences::CURSOR_ON_LENGTH;
+
+using Sequences::SET_CURSOR_HOME;
+using Sequences::SET_CURSOR_HOME_LENGTH;
+
+using Sequences::CLEAR_LINE;
+using Sequences::CLEAR_LINE_LENGTH;
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
@@ -30,17 +43,13 @@ void Editor::refreshScreen() {
 
   Buffer buffer;
 
-  // l - set mode (turning cursor off)
-  buffer.append("\x1b[?25l", 4);
-  // H - set cursor to home position (top left)
-  buffer.append("\x1b[H", 3);
+  buffer.append(CURSOR_OFF, CURSOR_OFF_LENGTH);
+  buffer.append(SET_CURSOR_HOME, SET_CURSOR_HOME_LENGTH);
 
   drawRows(&buffer);
 
-  // H - set cursor to home position (top left)
-  buffer.append("\x1b[H", 3);
-  // h - reset mode (turning cursor on)
-  buffer.append("\x1b[?25h", 4);
+  buffer.append(SET_CURSOR_HOME, SET_CURSOR_HOME_LENGTH);
+  buffer.append(CURSOR_ON, CURSOR_ON_LENGTH);
 
   write(STDOUT_FILENO, buffer.getBuffer(), buffer.getLength());
 }
@@ -51,8 +60,7 @@ void Editor::drawRows(Buffer *buffer) {
   for (y = 0; y < rows; y++) {
     buffer->append("~", 1);
 
-    // K - erase in line
-    buffer->append("\x1b[K", 3);
+    buffer->append(CLEAR_LINE, CLEAR_LINE_LENGTH);
     if (y < rows - 1) {
       buffer->append("\r\n", 2);
     }

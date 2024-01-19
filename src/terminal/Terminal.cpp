@@ -1,9 +1,19 @@
 #include "Terminal.h"
 #include "TerminalException.h"
+#include "Sequences.h"
 #include <cstdlib>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+
+using Sequences::ESCAPE;
+using Sequences::OPEN_BRACKET;
+
+using Sequences::CURSOR_POSITION;
+using Sequences::CURSOR_POSITION_LENGTH;
+
+using Sequences::MAX_CURSOR_POSITION;
+using Sequences::MAX_CURSOR_POSITION_LENGTH;
 
 struct termios Terminal::orig_termios;
 
@@ -24,10 +34,7 @@ void Terminal::setWindowSize() {
   struct winsize ws;
 
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
-    // Move the cursor right and down
-    // C - Cursor forward
-    // B - Cursor down
-    if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B", 12) != 12)
+    if (write(STDOUT_FILENO, MAX_CURSOR_POSITION, MAX_CURSOR_POSITION_LENGTH) != MAX_CURSOR_POSITION_LENGTH)
       throw TerminalException("Unable to set terminal window size.");
     getCursorPosition();
   } else {
@@ -40,19 +47,18 @@ void Terminal::getCursorPosition() {
   char buf[32];
   unsigned int i = 0;
 
-  // Get current cursor position
-  // n - Device status report
-  if (write(STDOUT_FILENO, "\x1b[6n", 4) != 4) 
+  if (write(STDOUT_FILENO, CURSOR_POSITION, CURSOR_POSITION_LENGTH) != CURSOR_POSITION_LENGTH) 
     throw TerminalException("Error writing cursor to terminal.");
 
   while (i < sizeof(buf) - 1) {
     if (read(STDIN_FILENO, &buf[i], 1) != 1) break;
+    // R is the last character output by CURSOR_POSITION
     if (buf[i] == 'R') break;
     i++;
   }
   buf[i] = '\0';
 
-  if (buf[0] != '\x1b' || buf[1] != '[')
+  if (buf[0] != *ESCAPE || buf[1] != *OPEN_BRACKET)
     throw TerminalException("Error parsing cursor position.");
   if (sscanf(&buf[2], "%d;%d", &screenRows, &screenCols) != 2)
     throw TerminalException("Error setting screen rows and columns.");
