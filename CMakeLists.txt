@@ -19,6 +19,7 @@ set(SOURCE_FILES
     src/main.cpp
     src/terminal/Terminal.cpp
     src/editor/Editor.cpp
+    src/editor/Buffer.cpp
     src/exceptions/terminal/TerminalException.cpp
     src/exceptions/app/AppException.cpp
 )

@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include "Terminal.h"
+#include "Buffer.h"
 
 class Editor {
 public:
@@ -13,7 +14,7 @@ public:
 private:
   const Terminal& m_terminal;
   char readKey();
-  void drawRows();
+  void drawRows(Buffer *buffer);
 };
 
 #endif

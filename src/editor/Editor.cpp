@@ -1,5 +1,6 @@
 #include "Editor.h"
 #include "AppException.h"
+#include "Buffer.h"
 #include <unistd.h>
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -26,25 +27,29 @@ void Editor::processKeypress() {
 }
 
 void Editor::refreshScreen() {
+
+  Buffer buffer;
   // J - erase in display
-  write(STDOUT_FILENO, "\x1b[2J", 4);
+  buffer.append("\x1b[2J", 4);
   // H - set cursor to home position (top left)
-  write(STDOUT_FILENO, "\x1b[H", 3);
+  buffer.append("\x1b[H", 3);
 
-  drawRows();
+  drawRows(&buffer);
 
   // H - set cursor to home position (top left)
-  write(STDOUT_FILENO, "\x1b[H", 3);
+  buffer.append("\x1b[H", 3);
+
+  write(STDOUT_FILENO, buffer.getBuffer(), buffer.getLength());
 }
 
-void Editor::drawRows() {
+void Editor::drawRows(Buffer *buffer) {
   int y;
   int rows = m_terminal.getScreenRows();
   for (y = 0; y < rows; y++) {
-    write(STDOUT_FILENO, "~", 1);
+    buffer->append("~", 1);
 
     if (y < rows - 1) {
-      write(STDOUT_FILENO, "\r\n", 2);
+      buffer->append("\r\n", 2);
     }
   }
 }
