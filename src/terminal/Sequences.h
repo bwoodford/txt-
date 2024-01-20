@@ -26,8 +26,8 @@ namespace Sequences {
   static const char* SET_CURSOR_HOME = "\x1b[H";
   static const int SET_CURSOR_HOME_LENGTH = 3;
 
-  static const char* SET_CURSOR_X_Y = "\x1b[%d;%dH";
-  static const int SET_CURSOR_X_Y_LENGTH = 3;
+  static const char* SET_CURSOR_Y_X = "\x1b[%d;%dH";
+  static const int SET_CURSOR_Y_X_LENGTH = 3;
 
   // K - erase in line (default erases from cursor to end)
   static const char* CLEAR_LINE = "\x1b[K";

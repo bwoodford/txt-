@@ -7,7 +7,7 @@
 
 class Editor {
 public:
-  Editor(const Terminal& terminal, const Cursor& cursor): 
+  Editor(const Terminal& terminal, Cursor& cursor): 
     m_terminal(terminal), m_cursor(cursor){
 
   }
@@ -15,9 +15,13 @@ public:
   void refreshScreen();
 private:
   const Terminal& m_terminal;
-  const Cursor& m_cursor;
+  Cursor& m_cursor;
+
   char readKey();
   void drawRows(Buffer *buffer);
+
+
+  void moveCursor(char key);
 };
 
 #endif

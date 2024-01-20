@@ -14,7 +14,7 @@ using Sequences::CURSOR_ON_LENGTH;
 using Sequences::SET_CURSOR_HOME;
 using Sequences::SET_CURSOR_HOME_LENGTH;
 
-using Sequences::SET_CURSOR_X_Y;
+using Sequences::SET_CURSOR_Y_X;
 
 using Sequences::CLEAR_LINE;
 using Sequences::CLEAR_LINE_LENGTH;
@@ -39,6 +39,38 @@ void Editor::processKeypress() {
     case CTRL_KEY('q'):
       exit(0);
       break;
+
+    case 'h':
+    case 'l':
+    case 'j':
+    case 'k':
+      moveCursor(c);
+      break; 
+  }
+}
+
+void Editor::moveCursor(char key) {
+  switch (key) {
+    case 'h':
+      if (m_cursor.getX() != 0) {
+        m_cursor.left();
+      }
+      break;
+    case 'l':
+      if (m_cursor.getX() != m_terminal.getScreenCols() - 1) {
+        m_cursor.right();
+      }
+      break;
+    case 'k':
+      if (m_cursor.getY() != 0) {
+        m_cursor.up();
+      }
+      break;
+    case 'j':
+      if (m_cursor.getY() != m_terminal.getScreenRows() - 1) {
+        m_cursor.down();
+      }
+      break;
   }
 }
 
@@ -53,7 +85,7 @@ void Editor::refreshScreen() {
 
   char buf[32];
   // Add one to cords to make cursor 1-indexed like the terminal
-  snprintf(buf, sizeof(buf), SET_CURSOR_X_Y, m_cursor.getX() + 1, m_cursor.getY() + 1);
+  snprintf(buf, sizeof(buf), SET_CURSOR_Y_X, m_cursor.getY() + 1, m_cursor.getX() + 1);
   buffer.append(buf, strlen(buf));
 
   buffer.append(CURSOR_ON, CURSOR_ON_LENGTH);

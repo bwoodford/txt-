@@ -6,11 +6,13 @@ public:
   Cursor(int x, int y): m_x(x), m_y(y) {
   }
 
-  int getX() const;
-  void setX(int x);
+  void left();
+  void right();
+  void up();
+  void down();
 
+  int getX() const;
   int getY() const;
-  void setY(int y);
 
 private:
   int m_x;
