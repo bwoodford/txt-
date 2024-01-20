@@ -2,6 +2,7 @@
 #include "AppException.h"
 #include "Sequences.h"
 #include "Buffer.h"
+#include <cstring>
 #include <unistd.h>
 
 using Sequences::CURSOR_OFF;
@@ -12,6 +13,8 @@ using Sequences::CURSOR_ON_LENGTH;
 
 using Sequences::SET_CURSOR_HOME;
 using Sequences::SET_CURSOR_HOME_LENGTH;
+
+using Sequences::SET_CURSOR_X_Y;
 
 using Sequences::CLEAR_LINE;
 using Sequences::CLEAR_LINE_LENGTH;
@@ -48,7 +51,11 @@ void Editor::refreshScreen() {
 
   drawRows(&buffer);
 
-  buffer.append(SET_CURSOR_HOME, SET_CURSOR_HOME_LENGTH);
+  char buf[32];
+  // Add one to cords to make cursor 1-indexed like the terminal
+  snprintf(buf, sizeof(buf), SET_CURSOR_X_Y, m_cursor.getX() + 1, m_cursor.getY() + 1);
+  buffer.append(buf, strlen(buf));
+
   buffer.append(CURSOR_ON, CURSOR_ON_LENGTH);
 
   write(STDOUT_FILENO, buffer.getBuffer(), buffer.getLength());

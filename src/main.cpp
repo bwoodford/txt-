@@ -11,7 +11,8 @@ int main() {
   try {
 
     Terminal terminal;
-    Editor editor(terminal);
+    Cursor cursor(0,0);
+    Editor editor(terminal, cursor);
 
     while (true) {
       editor.refreshScreen();

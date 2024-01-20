@@ -18,6 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SOURCE_FILES 
     src/main.cpp
     src/terminal/Terminal.cpp
+    src/editor/Cursor.cpp
     src/editor/Editor.cpp
     src/editor/Buffer.cpp
     src/exceptions/terminal/TerminalException.cpp
