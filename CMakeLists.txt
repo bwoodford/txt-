@@ -20,7 +20,8 @@ set(SOURCE_FILES
     src/terminal/Terminal.cpp
     src/editor/Cursor.cpp
     src/editor/Editor.cpp
-    src/editor/Buffer.cpp
+    src/editor/structures/Buffer.cpp
+    src/editor/structures/Node.cpp
     src/exceptions/terminal/TerminalException.cpp
     src/exceptions/app/AppException.cpp
 )
@@ -29,6 +30,7 @@ set(SOURCE_FILES
 include_directories(
     src/terminal
     src/editor
+    src/editor/structures
     src/exceptions/terminal
     src/exceptions/app
 )
