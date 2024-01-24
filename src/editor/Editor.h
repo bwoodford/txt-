@@ -19,12 +19,15 @@ private:
   const Terminal& m_terminal;
   Cursor& m_cursor;
   Row *m_rows;  
+
   int m_numrows;
+  int m_rowoff;
 
   char readKey();
   void drawRows(Buffer *buffer);
   void moveCursor(char key);
   void appendRow(char *string, long length);
+  void scroll();
 };
 
 #endif

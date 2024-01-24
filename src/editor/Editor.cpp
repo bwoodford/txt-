@@ -25,6 +25,7 @@ using Sequences::CLEAR_LINE_LENGTH;
 Editor::Editor(const Terminal& terminal, Cursor& cursor): 
     m_terminal(terminal), m_cursor(cursor) {
   m_numrows = 0;
+  m_rowoff = 0;
   m_rows = nullptr;
 }
 
@@ -78,14 +79,26 @@ void Editor::moveCursor(char key) {
       }
       break;
     case 'j':
-      if (m_cursor.getY() != m_terminal.getScreenRows() - 1) {
+      if (m_cursor.getY() < m_numrows) {
         m_cursor.down();
       }
       break;
   }
 }
 
+void Editor::scroll() {
+  // Above visible window
+  if (m_cursor.getY() < m_rowoff) {
+    m_rowoff = m_cursor.getY();
+  }
+  // Below visible window
+  if (m_cursor.getY() >= m_rowoff + m_terminal.getScreenRows()) {
+    m_rowoff = m_cursor.getY() - m_terminal.getScreenRows() + 1;
+  }
+}
+
 void Editor::refreshScreen() {
+  scroll();
 
   Buffer buffer;
 
@@ -96,7 +109,7 @@ void Editor::refreshScreen() {
 
   char buf[32];
   // Add one to cords to make cursor 1-indexed like the terminal
-  snprintf(buf, sizeof(buf), SET_CURSOR_Y_X, m_cursor.getY() + 1, m_cursor.getX() + 1);
+  snprintf(buf, sizeof(buf), SET_CURSOR_Y_X, (m_cursor.getY() - m_rowoff) + 1, m_cursor.getX() + 1);
   buffer.append(buf, strlen(buf));
 
   buffer.append(CURSOR_ON, CURSOR_ON_LENGTH);
@@ -108,13 +121,13 @@ void Editor::drawRows(Buffer *buffer) {
   int y;
   int rows = m_terminal.getScreenRows();
   for (y = 0; y < rows; y++) {
-
-    if(y >= m_numrows) {
+    int filerow = y + m_rowoff;
+    if(filerow >= m_numrows) {
       buffer->append("~", 1);
     } else {
-      int length = m_rows[y].getSize();
+      int length = m_rows[filerow].getSize();
       if (length > m_terminal.getScreenCols()) length = m_terminal.getScreenCols();
-      buffer->append(m_rows[y].getChars(), length);
+      buffer->append(m_rows[filerow].getChars(), length);
     }
 
     buffer->append(CLEAR_LINE, CLEAR_LINE_LENGTH);
