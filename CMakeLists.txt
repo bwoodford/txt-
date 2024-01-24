@@ -20,6 +20,7 @@ set(SOURCE_FILES
     src/terminal/Terminal.cpp
     src/editor/Cursor.cpp
     src/editor/Editor.cpp
+    src/editor/structures/Row.cpp
     src/editor/structures/Buffer.cpp
     src/editor/structures/Node.cpp
     src/exceptions/terminal/TerminalException.cpp

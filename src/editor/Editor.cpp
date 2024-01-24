@@ -2,6 +2,7 @@
 #include "AppException.h"
 #include "Sequences.h"
 #include "Buffer.h"
+#include <cstdio>
 #include <cstring>
 #include <unistd.h>
 
@@ -20,6 +21,16 @@ using Sequences::CLEAR_LINE;
 using Sequences::CLEAR_LINE_LENGTH;
 
 #define CTRL_KEY(k) ((k) & 0x1f)
+
+Editor::Editor(const Terminal& terminal, Cursor& cursor): 
+    m_terminal(terminal), m_cursor(cursor) {
+  m_numrows = 0;
+  m_rows = nullptr;
+}
+
+Editor::~Editor() {
+  free(m_rows);
+}
 
 char Editor::readKey() {
   int nread;
@@ -97,12 +108,48 @@ void Editor::drawRows(Buffer *buffer) {
   int y;
   int rows = m_terminal.getScreenRows();
   for (y = 0; y < rows; y++) {
-    buffer->append("~", 1);
+
+    if(y >= m_numrows) {
+      buffer->append("~", 1);
+    } else {
+      int length = m_rows[y].getSize();
+      if (length > m_terminal.getScreenCols()) length = m_terminal.getScreenCols();
+      buffer->append(m_rows[y].getChars(), length);
+    }
 
     buffer->append(CLEAR_LINE, CLEAR_LINE_LENGTH);
     if (y < rows - 1) {
       buffer->append("\r\n", 2);
     }
+
   }
 }
 
+void Editor::appendRow(char *string, long length) {
+  m_rows = (Row*)realloc(m_rows, sizeof(Row) * (m_numrows + 1));
+
+  char* buf = (char*)malloc(length+1);
+  memcpy(buf, string, length);
+  buf[length] = '\0';
+  m_rows[m_numrows] = Row(buf, length);
+
+  m_numrows++;
+}
+
+void Editor::open(char* filename) {
+  FILE *fp = fopen(filename, "r");
+  if (!fp) throw AppException("Error opening file.");
+
+  char *line = nullptr;
+  size_t linecap = 0;
+  ssize_t linelen;
+
+  while ((linelen = getline(&line, &linecap, fp)) != -1) {
+    while(linelen > 0 && (line[linelen-1] == '\n' || line[linelen-1] == '\r'))
+      linelen--;
+    appendRow(line, linelen);
+  }
+
+  free(line);
+  fclose(fp);
+}

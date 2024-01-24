@@ -6,13 +6,17 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
 
   try {
 
     Terminal terminal;
     Cursor cursor(0,0);
     Editor editor(terminal, cursor);
+
+    if (argc >= 2) {
+      editor.open(argv[1]);
+    }
 
     while (true) {
       editor.refreshScreen();
