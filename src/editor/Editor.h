@@ -22,6 +22,7 @@ private:
 
   int m_numrows;
   int m_rowoff;
+  int m_coloff;
 
   char readKey();
   void drawRows(Buffer *buffer);

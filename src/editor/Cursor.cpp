@@ -5,6 +5,10 @@ void Cursor::up() {
   m_y--;
 }
 
+void Cursor::setX(int x) {
+  m_x = x;
+}
+
 void Cursor::down() {
   m_y++;
 }

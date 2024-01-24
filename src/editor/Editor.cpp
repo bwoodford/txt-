@@ -25,8 +25,9 @@ using Sequences::CLEAR_LINE_LENGTH;
 Editor::Editor(const Terminal& terminal, Cursor& cursor): 
     m_terminal(terminal), m_cursor(cursor) {
   m_numrows = 0;
-  m_rowoff = 0;
   m_rows = nullptr;
+  m_rowoff = 0;
+  m_coloff = 0;
 }
 
 Editor::~Editor() {
@@ -62,6 +63,8 @@ void Editor::processKeypress() {
 }
 
 void Editor::moveCursor(char key) {
+  Row *row = (m_cursor.getY() >= m_numrows) ? nullptr : &m_rows[m_cursor.getY()];
+
   switch (key) {
     case 'h':
       if (m_cursor.getX() != 0) {
@@ -69,9 +72,7 @@ void Editor::moveCursor(char key) {
       }
       break;
     case 'l':
-      if (m_cursor.getX() != m_terminal.getScreenCols() - 1) {
-        m_cursor.right();
-      }
+      m_cursor.right();
       break;
     case 'k':
       if (m_cursor.getY() != 0) {
@@ -84,6 +85,14 @@ void Editor::moveCursor(char key) {
       }
       break;
   }
+  
+  // Snap cursor to the end of the line
+  row = (m_cursor.getY() >= m_numrows) ? nullptr : &m_rows[m_cursor.getY()];
+  int rowlen = row ? row->getSize(): 0;
+  if (m_cursor.getX() > rowlen) {
+    m_cursor.setX(rowlen);
+  }
+
 }
 
 void Editor::scroll() {
@@ -94,6 +103,14 @@ void Editor::scroll() {
   // Below visible window
   if (m_cursor.getY() >= m_rowoff + m_terminal.getScreenRows()) {
     m_rowoff = m_cursor.getY() - m_terminal.getScreenRows() + 1;
+  }
+  // Left of visible window
+  if (m_cursor.getX() < m_coloff) {
+    m_coloff = m_cursor.getX();
+  }
+  // Right of visible window
+  if (m_cursor.getX() >= m_coloff + m_terminal.getScreenCols()) {
+    m_coloff = m_cursor.getX() - m_terminal.getScreenCols() + 1;
   }
 }
 
@@ -109,7 +126,8 @@ void Editor::refreshScreen() {
 
   char buf[32];
   // Add one to cords to make cursor 1-indexed like the terminal
-  snprintf(buf, sizeof(buf), SET_CURSOR_Y_X, (m_cursor.getY() - m_rowoff) + 1, m_cursor.getX() + 1);
+  snprintf(buf, sizeof(buf), SET_CURSOR_Y_X, 
+           (m_cursor.getY() - m_rowoff) + 1, (m_cursor.getX() - m_coloff) + 1);
   buffer.append(buf, strlen(buf));
 
   buffer.append(CURSOR_ON, CURSOR_ON_LENGTH);
@@ -125,16 +143,19 @@ void Editor::drawRows(Buffer *buffer) {
     if(filerow >= m_numrows) {
       buffer->append("~", 1);
     } else {
-      int length = m_rows[filerow].getSize();
+      int length = m_rows[filerow].getSize() - m_coloff;
+
+      if (length < 0) length = 0;
       if (length > m_terminal.getScreenCols()) length = m_terminal.getScreenCols();
-      buffer->append(m_rows[filerow].getChars(), length);
+
+      char* chars = m_rows[filerow].getChars();
+      buffer->append(&chars[m_coloff], length);
     }
 
     buffer->append(CLEAR_LINE, CLEAR_LINE_LENGTH);
     if (y < rows - 1) {
       buffer->append("\r\n", 2);
     }
-
   }
 }
 
