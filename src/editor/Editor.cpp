@@ -2,6 +2,7 @@
 #include "AppException.h"
 #include "Sequences.h"
 #include "Buffer.h"
+#include "TextManager.h"
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
@@ -22,16 +23,10 @@ using Sequences::CLEAR_LINE_LENGTH;
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
-Editor::Editor(const Terminal& terminal, Cursor& cursor): 
-    m_terminal(terminal), m_cursor(cursor) {
-  m_numrows = 0;
-  m_rows = nullptr;
+Editor::Editor(const Terminal& terminal, Cursor& cursor, TextManager& textManager): 
+    m_terminal(terminal), m_cursor(cursor), m_text(textManager) {
   m_rowoff = 0;
   m_coloff = 0;
-}
-
-Editor::~Editor() {
-  free(m_rows);
 }
 
 char Editor::readKey() {
@@ -63,7 +58,7 @@ void Editor::processKeypress() {
 }
 
 void Editor::moveCursor(char key) {
-  Row *row = (m_cursor.getY() >= m_numrows) ? nullptr : &m_rows[m_cursor.getY()];
+  Row *row = (m_cursor.getY() >= m_text.getNumRows()) ? nullptr : &m_text.getRows()[m_cursor.getY()];
 
   switch (key) {
     case 'h':
@@ -80,14 +75,14 @@ void Editor::moveCursor(char key) {
       }
       break;
     case 'j':
-      if (m_cursor.getY() < m_numrows) {
+      if (m_cursor.getY() < m_text.getNumRows()) {
         m_cursor.down();
       }
       break;
   }
   
   // Snap cursor to the end of the line
-  row = (m_cursor.getY() >= m_numrows) ? nullptr : &m_rows[m_cursor.getY()];
+  row = (m_cursor.getY() >= m_text.getNumRows()) ? nullptr : &m_text.getRows()[m_cursor.getY()];
   int rowlen = row ? row->getSize(): 0;
   if (m_cursor.getX() > rowlen) {
     m_cursor.setX(rowlen);
@@ -140,15 +135,15 @@ void Editor::drawRows(Buffer *buffer) {
   int rows = m_terminal.getScreenRows();
   for (y = 0; y < rows; y++) {
     int filerow = y + m_rowoff;
-    if(filerow >= m_numrows) {
+    if(filerow >= m_text.getNumRows()) {
       buffer->append("~", 1);
     } else {
-      int length = m_rows[filerow].getSize() - m_coloff;
+      int length = m_text.getRows()[filerow].getSize() - m_coloff;
 
       if (length < 0) length = 0;
       if (length > m_terminal.getScreenCols()) length = m_terminal.getScreenCols();
 
-      char* chars = m_rows[filerow].getChars();
+      char* chars = m_text.getRows()[filerow].getChars();
       buffer->append(&chars[m_coloff], length);
     }
 
@@ -157,17 +152,6 @@ void Editor::drawRows(Buffer *buffer) {
       buffer->append("\r\n", 2);
     }
   }
-}
-
-void Editor::appendRow(char *string, long length) {
-  m_rows = (Row*)realloc(m_rows, sizeof(Row) * (m_numrows + 1));
-
-  char* buf = (char*)malloc(length+1);
-  memcpy(buf, string, length);
-  buf[length] = '\0';
-  m_rows[m_numrows] = Row(buf, length);
-
-  m_numrows++;
 }
 
 void Editor::open(char* filename) {
@@ -181,7 +165,7 @@ void Editor::open(char* filename) {
   while ((linelen = getline(&line, &linecap, fp)) != -1) {
     while(linelen > 0 && (line[linelen-1] == '\n' || line[linelen-1] == '\r'))
       linelen--;
-    appendRow(line, linelen);
+    m_text.appendRow(line, linelen);
   }
 
   free(line);

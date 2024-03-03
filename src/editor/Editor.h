@@ -1,15 +1,14 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include "Row.h"
 #include "Terminal.h"
+#include "TextManager.h"
 #include "Cursor.h"
 #include "Buffer.h"
 
 class Editor {
 public:
-  Editor(const Terminal& terminal, Cursor& cursor);
-  ~Editor();
+  Editor(const Terminal& terminal, Cursor& cursor, TextManager& textManager);
 
   void processKeypress();
   void refreshScreen();
@@ -18,16 +17,14 @@ public:
 private:
   const Terminal& m_terminal;
   Cursor& m_cursor;
-  Row *m_rows;  
+  TextManager& m_text;
 
-  int m_numrows;
   int m_rowoff;
   int m_coloff;
 
   char readKey();
   void drawRows(Buffer *buffer);
   void moveCursor(char key);
-  void appendRow(char *string, long length);
   void scroll();
 };
 

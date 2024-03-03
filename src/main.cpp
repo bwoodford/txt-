@@ -1,5 +1,6 @@
 #include "Terminal.h"
 #include "Editor.h"
+#include "TextManager.h"
 #include <stdexcept>
 #include <iostream>
 #include <unistd.h>
@@ -12,7 +13,8 @@ int main(int argc, char *argv[]) {
 
     Terminal terminal;
     Cursor cursor(0,0);
-    Editor editor(terminal, cursor);
+    TextManager textManager;
+    Editor editor(terminal, cursor, textManager);
 
     if (argc >= 2) {
       editor.open(argv[1]);
