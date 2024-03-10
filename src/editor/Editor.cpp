@@ -1,6 +1,7 @@
 #include "Editor.h"
 #include "AppException.h"
 #include "Sequences.h"
+#include "Keys.h"
 #include "Buffer.h"
 #include "TextManager.h"
 #include <cstdio>
@@ -41,9 +42,12 @@ char Editor::readKey() {
 }
 
 void Editor::processKeypress() {
-  char c = readKey();
+  int c = readKey();
 
   switch (c) {
+    case '\r':
+      break;
+
     case CTRL_KEY('q'):
       exit(0);
       break;
@@ -55,13 +59,22 @@ void Editor::processKeypress() {
       moveCursor(c);
       break; 
 
+    case Keys::BACKSPACE:
+    case Keys::DEL_KEY:
+    case CTRL_KEY('h'):
+      break;
+
+    case CTRL_KEY('l'):
+    case '\x1b':
+      break;
+
     default:
       insert(c);
       break;
   }
 }
 
-void Editor::insert(char c) {
+void Editor::insert(int c) {
   if (m_cursor.getY() == m_text.getNumRows()) {
     m_text.appendRow((char*)"", 0);
   }

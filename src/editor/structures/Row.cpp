@@ -9,7 +9,7 @@ char* Row::getChars() const {
   return m_chars;
 }
 
-void Row::insert(int at, char c) {
+void Row::insert(int at, int c) {
   memmove(&m_chars[at + 1], &m_chars[at], m_size - at + 1);
   m_size += 1;
   m_chars[at] = c;

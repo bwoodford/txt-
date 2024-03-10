@@ -27,7 +27,7 @@ private:
   void moveCursor(char key);
   void scroll();
 
-  void insert(char c);
+  void insert(int c);
 };
 
 #endif

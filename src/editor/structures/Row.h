@@ -8,7 +8,7 @@ public:
 
   }
 
-  void insert(int at, char c);
+  void insert(int at, int c);
   int getSize() const;
   char* getChars() const;
 
