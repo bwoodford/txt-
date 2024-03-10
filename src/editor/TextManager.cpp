@@ -56,3 +56,9 @@ Row TextManager::updateRow(Row& row) {
   }
   return Row(buf, length);
 }
+
+void TextManager::insertIntoRow(Row& row, int at, char c) {
+  if (at < 0 || at > row.getSize()) at = row.getSize();
+  row.insert(at, c);
+  updateRow(row);
+}

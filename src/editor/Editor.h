@@ -26,6 +26,8 @@ private:
   void drawRows(Buffer *buffer);
   void moveCursor(char key);
   void scroll();
+
+  void insert(char c);
 };
 
 #endif

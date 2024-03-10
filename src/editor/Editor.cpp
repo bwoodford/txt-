@@ -54,7 +54,19 @@ void Editor::processKeypress() {
     case 'k':
       moveCursor(c);
       break; 
+
+    default:
+      insert(c);
+      break;
   }
+}
+
+void Editor::insert(char c) {
+  if (m_cursor.getY() == m_text.getNumRows()) {
+    m_text.appendRow((char*)"", 0);
+  }
+  m_text.insertIntoRow(m_text.getRows()[m_cursor.getY()], m_cursor.getX(), c);
+  m_cursor.setX(m_cursor.getX() + 1);
 }
 
 void Editor::moveCursor(char key) {

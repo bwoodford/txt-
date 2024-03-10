@@ -10,6 +10,7 @@ public:
 
   void load();
   void appendRow(char *string, long length);
+  void insertIntoRow(Row& row, int at, char c);
 
   int getNumRows() const;
   Row* getRows() const;
